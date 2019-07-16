@@ -14,13 +14,16 @@ type Props = {
   onChange: (rect: T_LTWH) => void
 };
 
-class AreaHighlight extends Component<Props> {
+class     AreaHighlight extends Component<Props> {
   render() {
     const { highlight, onChange, ...otherProps } = this.props;
 
     return (
       <Rnd
         className="AreaHighlight"
+        onDragStart={() => {
+          if (otherProps.onClick) otherProps.onClick();
+        }}
         onDragStop={(_, data) => {
           const boundingRect = {
             ...highlight.position.boundingRect,
@@ -52,7 +55,7 @@ class AreaHighlight extends Component<Props> {
           event.stopPropagation();
           event.preventDefault();
         }}
-        {...otherProps}
+          {...otherProps}
       />
     );
   }

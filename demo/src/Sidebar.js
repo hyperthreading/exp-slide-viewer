@@ -7,6 +7,7 @@ type T_ManuscriptHighlight = T_Highlight;
 
 type Props = {
   highlights: Array<T_ManuscriptHighlight>,
+  onHighlightClick: T_ManuscriptHighlight => void,
   resetHighlights: () => void
 };
 
@@ -14,25 +15,9 @@ const updateHash = highlight => {
   location.hash = `highlight-${highlight.id}`;
 };
 
-function Sidebar({ highlights, resetHighlights }: Props) {
+function Sidebar({ highlights, onHighlightClick, resetHighlights }: Props) {
   return (
-    <div className="sidebar" style={{ width: "25vw" }}>
-      <div className="description" style={{ padding: "1rem" }}>
-        <h2 style={{ marginBottom: "1rem" }}>react-pdf-highlighter</h2>
-
-        <p style={{ fontSize: "0.7rem" }}>
-          <a href="https://github.com/agentcooper/react-pdf-highlighter">
-            Open in GitHub
-          </a>
-        </p>
-
-        <p>
-          <small>
-            To create area highlight hold ⌥ Option key (Alt), then click and
-            drag.
-          </small>
-        </p>
-      </div>
+    <div className="sidebar" style={{ width: "10vw" }}>
 
       <ul className="sidebar__highlights">
         {highlights.map((highlight, index) => (
@@ -40,7 +25,7 @@ function Sidebar({ highlights, resetHighlights }: Props) {
             key={index}
             className="sidebar__highlight"
             onClick={() => {
-              updateHash(highlight);
+              onHighlightClick(highlight);
             }}
           >
             <div>

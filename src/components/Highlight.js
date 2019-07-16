@@ -29,7 +29,8 @@ class Highlight extends Component<Props> {
       onMouseOver,
       onMouseOut,
       comment,
-      isScrolledTo
+      isScrolledTo,
+      onDoubleClick
     } = this.props;
 
     const { rects, boundingRect } = position;
@@ -55,6 +56,7 @@ class Highlight extends Component<Props> {
               onMouseOver={onMouseOver}
               onMouseOut={onMouseOut}
               onClick={onClick}
+              onDoubleClick={onDoubleClick}
               key={index}
               style={rect}
               className={`Highlight__part`}

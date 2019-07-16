@@ -21,6 +21,8 @@ import Sidebar from "./Sidebar";
 import type { T_Highlight, T_NewHighlight } from "../../src/types";
 
 import "./style/App.css";
+import PdfViewer from "./PdfViewer";
+import { copyToClipboard } from "./util";
 
 type T_ManuscriptHighlight = T_Highlight;
 
@@ -45,165 +47,138 @@ const HighlightPopup = ({ comment }) =>
     </div>
   ) : null;
 
-const DEFAULT_URL = "https://arxiv.org/pdf/1708.08021.pdf";
+const DEFAULT_URL = "http://localhost:8080/CHI18-prompting-slide.pdf";
+const DEFAULT_URL_DOC = "http://localhost:8080/CHI2018-Prompting.pdf";
 
 const searchParams = new URLSearchParams(location.search);
 const url = searchParams.get("url") || DEFAULT_URL;
 
 class App extends Component<Props, State> {
   state = {
-    highlights: testHighlights[url] ? [...testHighlights[url]] : []
+    highlights: [],
+    highlights2: [],
+    mappings: [],
+    highlightTextForSlide: "",
+    highlightTextForDoc: ""
   };
 
   state: State;
 
-  resetHighlights = () => {
-    this.setState({
-      highlights: []
-    });
-  };
-
-  scrollViewerTo = (highlight: any) => {};
-
-  scrollToHighlightFromHash = () => {
-    const highlight = this.getHighlightById(parseIdFromHash());
-
-    if (highlight) {
-      this.scrollViewerTo(highlight);
-    }
-  };
-
-  componentDidMount() {
-    window.addEventListener(
-      "hashchange",
-      this.scrollToHighlightFromHash,
-      false
-    );
-  }
-
-  getHighlightById(id: string) {
-    const { highlights } = this.state;
-
-    return highlights.find(highlight => highlight.id === id);
-  }
-
-  addHighlight(highlight: T_NewHighlight) {
-    const { highlights } = this.state;
-
-    console.log("Saving highlight", highlight);
-
-    this.setState({
-      highlights: [{ ...highlight, id: getNextId() }, ...highlights]
-    });
-  }
-
-  updateHighlight(highlightId: string, position: Object, content: Object) {
-    console.log("Updating highlight", highlightId, position, content);
-
-    this.setState({
-      highlights: this.state.highlights.map(h => {
-        return h.id === highlightId
-          ? {
-              ...h,
-              position: { ...h.position, ...position },
-              content: { ...h.content, ...content }
-            }
-          : h;
-      })
-    });
-  }
-
   render() {
-    const { highlights } = this.state;
+    const {
+      highlights,
+      highlights2,
+      mappings,
+      highlightTextForSlide,
+      highlightTextForDoc
+    } = this.state;
 
     return (
       <div className="App" style={{ display: "flex", height: "100vh" }}>
-        <Sidebar
-          highlights={highlights}
-          resetHighlights={this.resetHighlights}
-        />
-        <div
-          style={{
-            height: "100vh",
-            width: "75vw",
-            overflowY: "scroll",
-            position: "relative"
-          }}
-        >
-          <PdfLoader url={url} beforeLoad={<Spinner />}>
-            {pdfDocument => (
-              <PdfHighlighter
-                pdfDocument={pdfDocument}
-                enableAreaSelection={event => event.altKey}
-                onScrollChange={resetHash}
-                scrollRef={scrollTo => {
-                  this.scrollViewerTo = scrollTo;
-
-                  this.scrollToHighlightFromHash();
-                }}
-                onSelectionFinished={(
-                  position,
-                  content,
-                  hideTipAndSelection,
-                  transformSelection
-                ) => (
-                  <Tip
-                    onOpen={transformSelection}
-                    onConfirm={comment => {
-                      this.addHighlight({ content, position, comment });
-
-                      hideTipAndSelection();
-                    }}
-                  />
-                )}
-                highlightTransform={(
-                  highlight,
-                  index,
-                  setTip,
-                  hideTip,
-                  viewportToScaled,
-                  screenshot,
-                  isScrolledTo
-                ) => {
-                  const isTextHighlight = !Boolean(
-                    highlight.content && highlight.content.image
-                  );
-
-                  const component = isTextHighlight ? (
-                    <Highlight
-                      isScrolledTo={isScrolledTo}
-                      position={highlight.position}
-                      comment={highlight.comment}
-                    />
-                  ) : (
-                    <AreaHighlight
-                      highlight={highlight}
-                      onChange={boundingRect => {
-                        this.updateHighlight(
-                          highlight.id,
-                          { boundingRect: viewportToScaled(boundingRect) },
-                          { image: screenshot(boundingRect) }
-                        );
-                      }}
-                    />
-                  );
-
-                  return (
-                    <Popup
-                      popupContent={<HighlightPopup {...highlight} />}
-                      onMouseOver={popupContent =>
-                        setTip(highlight, highlight => popupContent)
-                      }
-                      onMouseOut={hideTip}
-                      key={index}
-                      children={component}
-                    />
-                  );
-                }}
-                highlights={highlights}
-              />
-            )}
-          </PdfLoader>
+        <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+          <div>
+            <button
+              onClick={() => {
+                const text = JSON.stringify(highlights, undefined, 4);
+                copyToClipboard(text);
+                this.setState({ highlightTextForSlide: text });
+              }}
+            >
+              Export Highlights
+            </button>
+            <button
+              onClick={() => {
+                this.setState({
+                  highlights: JSON.parse(highlightTextForSlide)
+                });
+              }}
+            >
+              Import Highlights
+            </button>
+            <textarea
+              value={highlightTextForSlide}
+              onChange={e =>
+                this.setState({ highlightTextForSlide: e.target.value })
+              }
+            />
+            <textarea
+              onChange={e =>
+                this.setState({ mappings: JSON.parse(e.target.value) })
+              }
+            />
+          </div>
+          <div style={{ display: "flex", flex: 1 }}>
+            <Sidebar
+              highlights={highlights}
+              onHighlightClick={highlight => {
+                console.log("asd");
+                this.refs.slideViewer.scrollViewerTo(highlight);
+              }}
+            />
+            <PdfViewer
+              ref="slideViewer"
+              highlights={highlights}
+              onHighlightChange={highlights =>
+                this.setState({ highlights: highlights })
+              }
+              onHighlightClick={id => {
+                const mapping = mappings.find(([slideId, _]) => slideId === id);
+                if (!mapping) return;
+                console.log("jump!");
+                const docHighlightId = mapping[1];
+                const docHighlight = this.state.highlights2.find(
+                  h => h.id === docHighlightId
+                );
+                if (!docHighlight) return;
+                this.refs.docViewer.scrollViewerTo(docHighlight);
+                console.log("jump!!");
+              }}
+              builderMode={false}
+              url={DEFAULT_URL}
+            />
+          </div>
+        </div>
+        <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+          <div>
+            <button
+              onClick={() => {
+                const text = JSON.stringify(highlights2, undefined, 4);
+                copyToClipboard(text);
+                this.setState({ highlightTextForDoc: text });
+              }}
+            >
+              Export Highlights
+            </button>
+            <button
+              onClick={() => {
+                this.setState({
+                  highlights2: JSON.parse(highlightTextForDoc)
+                });
+              }}
+            >
+              Import Highlights
+            </button>
+            <textarea
+              value={highlightTextForDoc}
+              onChange={e =>
+                this.setState({ highlightTextForDoc: e.target.value })
+              }
+            />
+            <textarea
+              onChange={e =>
+                this.setState({ mappings: JSON.parse(e.target.value) })
+              }
+            />
+          </div>
+          <PdfViewer
+            ref="docViewer"
+            highlights={highlights2}
+            onHighlightChange={highlights =>
+              this.setState({ highlights2: highlights })
+            }
+            builderMode={true}
+            url={DEFAULT_URL_DOC}
+          />
         </div>
       </div>
     );
