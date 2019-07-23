@@ -14,10 +14,12 @@
     "flow": "flow",
     "deploy": "npm run build && gh-pages --dist ./demo/dist --branch gh-pages",
     "prepublishOnly": "npm run build && npm run copy-files",
-    "prettier": "prettier --write 'src/**/*.js' 'demo/src/**/*.js'"
+    "prettier": "prettier --write 'src/**/*.js' 'demo/src/**/*.js'",
+    "server": "static -H '{\"Access-Control-Allow-Origin\": \"*\"}' public"
   },
   "dependencies": {
     "lodash": "^4.17.10",
+    "node-static": "^0.7.11",
     "pdfjs-dist": "2.0.489",
     "react-pointable": "^1.1.1",
     "react-rnd": "^7.1.5"

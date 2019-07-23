@@ -2,10 +2,6 @@
 
 import React, { Component } from "react";
 
-import URLSearchParams from "url-search-params";
-
-import testHighlights from "./test-highlights";
-
 import Sidebar from "./Sidebar";
 
 import type { T_Highlight, T_NewHighlight } from "../../src/types";
@@ -19,14 +15,21 @@ type T_ManuscriptHighlight = T_Highlight;
 type Props = {};
 
 type State = {
-  highlights: Array<T_ManuscriptHighlight>
+  highlights: Array<T_ManuscriptHighlight>,
+  highlights2: Array<T_ManuscriptHighlight>,
+  mappings: Array<T_Mapping>,
+  highlightTextForSlide: string,
+  highlightTextForDoc: string
 };
 
-const DEFAULT_URL = "http://localhost:8080/CHI18-prompting-slide.pdf";
-const DEFAULT_URL_DOC = "http://localhost:8080/CHI2018-Prompting.pdf";
+type T_Mapping = [string, string];
 
-const searchParams = new URLSearchParams(location.search);
-const url = searchParams.get("url") || DEFAULT_URL;
+const HOST = "http://localhost:8080";
+
+const DEFAULT_RESOURCE_PATH = HOST + "/prompt";
+
+const DEFAULT_URL = DEFAULT_RESOURCE_PATH + "/slide.pdf";
+const DEFAULT_URL_DOC = DEFAULT_RESOURCE_PATH + "/doc.pdf";
 
 class App extends Component<Props, State> {
   state = {
@@ -38,6 +41,24 @@ class App extends Component<Props, State> {
   };
 
   state: State;
+
+  async componentDidMount() {
+    const [slideHighlights, docHighlights, mappings]: [
+      Array<T_ManuscriptHighlight>,
+      Array<T_ManuscriptHighlight>,
+      Array<T_Mapping>
+    ] = await Promise.all([
+      fetch(DEFAULT_RESOURCE_PATH + "/slide.json").then(r => r.json()),
+      fetch(DEFAULT_RESOURCE_PATH + "/doc.json").then(r => r.json()),
+      fetch(DEFAULT_RESOURCE_PATH + "/mapping.json").then(r => r.json())
+    ]);
+
+    this.setState({
+      highlights: slideHighlights,
+      highlights2: docHighlights,
+      mappings
+    });
+  }
 
   render() {
     const {
