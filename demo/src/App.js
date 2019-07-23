@@ -4,18 +4,8 @@ import React, { Component } from "react";
 
 import URLSearchParams from "url-search-params";
 
-import {
-  PdfLoader,
-  PdfHighlighter,
-  Tip,
-  Highlight,
-  Popup,
-  AreaHighlight
-} from "../../src";
-
 import testHighlights from "./test-highlights";
 
-import Spinner from "./Spinner";
 import Sidebar from "./Sidebar";
 
 import type { T_Highlight, T_NewHighlight } from "../../src/types";
@@ -31,21 +21,6 @@ type Props = {};
 type State = {
   highlights: Array<T_ManuscriptHighlight>
 };
-
-const getNextId = () => String(Math.random()).slice(2);
-
-const parseIdFromHash = () => location.hash.slice("#highlight-".length);
-
-const resetHash = () => {
-  location.hash = "";
-};
-
-const HighlightPopup = ({ comment }) =>
-  comment.text ? (
-    <div className="Highlight__popup">
-      {comment.emoji} {comment.text}
-    </div>
-  ) : null;
 
 const DEFAULT_URL = "http://localhost:8080/CHI18-prompting-slide.pdf";
 const DEFAULT_URL_DOC = "http://localhost:8080/CHI2018-Prompting.pdf";
