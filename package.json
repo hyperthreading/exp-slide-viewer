@@ -1,64 +1,39 @@
 {
-  "name": "react-pdf-highlighter",
-  "version": "2.2.0",
-  "description": "Set of React components for PDF annotation",
-  "main": "lib/index.js",
-  "scripts": {
-    "build": "nwb build-react-component",
-    "copy-flow": "flow-copy-source src lib",
-    "copy-styles": "cp -r src/style lib",
-    "copy-files": "npm run copy-flow && npm run copy-styles",
-    "clean": "nwb clean-module && npm clean-demo",
-    "start": "nwb serve-react-demo",
-    "test": "npm run flow",
-    "flow": "flow",
-    "deploy": "npm run build && gh-pages --dist ./demo/dist --branch gh-pages",
-    "prepublishOnly": "npm run build && npm run copy-files",
-    "prettier": "prettier --write 'src/**/*.js' 'demo/src/**/*.js'",
-    "server": "static -H '{\"Access-Control-Allow-Origin\": \"*\"}' public"
-  },
+  "name": "exp-slide",
+  "version": "0.1.0",
+  "private": true,
   "dependencies": {
-    "lodash": "^4.17.10",
-    "node-static": "^0.7.11",
-    "pdfjs-dist": "2.0.489",
-    "react-pointable": "^1.1.1",
-    "react-rnd": "^7.1.5"
+    "@types/jest": "24.0.16",
+    "@types/node": "12.6.8",
+    "@types/react": "16.8.23",
+    "@types/react-dom": "16.8.5",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "react-scripts": "3.0.1",
+    "typescript": "3.5.3"
   },
-  "peerDependencies": {
-    "react": ">=0.14",
-    "react-dom": ">=0.14"
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   },
   "devDependencies": {
-    "flow-bin": "0.73.0",
-    "flow-copy-source": "^1.1.0",
-    "gh-pages": "0.11.0",
-    "husky": "0.11.9",
-    "nwb": "0.21.0",
-    "prettier": "^1.18.2",
-    "react": "^15.4.2",
-    "react-dom": "^15.4.2",
-    "url-search-params": "0.6.1"
-  },
-  "author": "Artem Tyurin <artem.tyurin@gmail.com>",
-  "license": "MIT",
-  "keywords": [
-    "pdf",
-    "highlight",
-    "annotator",
-    "react-component"
-  ],
-  "files": [
-    "lib"
-  ],
-  "directories": {
-    "lib": "lib"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/agentcooper/react-pdf-highlighter.git"
-  },
-  "bugs": {
-    "url": "https://github.com/agentcooper/react-pdf-highlighter/issues"
-  },
-  "homepage": "https://github.com/agentcooper/react-pdf-highlighter#readme"
+    "prettier": "^1.18.2"
+  }
 }
