@@ -34,7 +34,7 @@
     "gh-pages": "0.11.0",
     "husky": "0.11.9",
     "nwb": "0.21.0",
-    "prettier": "^1.8.2",
+    "prettier": "^1.18.2",
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
     "url-search-params": "0.6.1"
