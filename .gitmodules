@@ -1,0 +1,6 @@
+[submodule "highlighter"]
+	path = highlighter
+	url = https://github.com/hyperthreading/pdf.js-viewer-highlighter.git
+[submodule "pdf.js"]
+	path = pdf.js
+	url = https://github.com/hyperthreading/pdf.js.git
