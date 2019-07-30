@@ -5,12 +5,8 @@ import React, {
   useRef,
   useState
 } from "react";
-import { Simulate } from "react-dom/test-utils";
-import load = Simulate.load;
-import Timeout = NodeJS.Timeout;
 
 const HOST = "http://localhost:1234";
-
 const DEFAULT_RESOURCE_PATH = HOST + "/public/prompt";
 
 const DEFAULT_URL = DEFAULT_RESOURCE_PATH + "/slide.pdf";
@@ -85,10 +81,10 @@ const useUpdateHighlights = (
   iframe: React.RefObject<HTMLIFrameElement>,
   highlights: Highlight[]
 ) => {
-  const [_, loadingState] = useWaitPdfViewerLoading(iframe);
+  const scriptLoaded = useWaitPdfViewerLoading(iframe)[2];
 
   useEffect(() => {
-    if (!loadingState.script) return;
+    if (!scriptLoaded) return;
     if (!iframe.current || !iframe.current.contentWindow) return;
 
     iframe.current.contentWindow.postMessage(
@@ -98,56 +94,53 @@ const useUpdateHighlights = (
       },
       "*"
     );
-  }, [iframe, highlights, loadingState]);
+  }, [iframe, highlights, scriptLoaded]);
 };
 
 const useWaitPdfViewerLoading = (
   iframe: React.RefObject<HTMLIFrameElement>
 ) => {
-  const [pingInterval, setPingInterval] = useState<Timeout | null>(null);
+  const [pingInterval, setPingInterval] = useState<number | null>(null);
 
-  const [loadingState, setLoadingState] = useState({
-    iframe: false,
-    handler: false,
-    script: false
-  });
+  const [iframeLoading, setIframeLoading] = useState(false);
+  const [scriptLoading, setScriptLoading] = useState(false);
 
-  const someAreNotLoaded = Object.values(loadingState).some(_ => !_);
+  const someAreNotLoaded = !(iframeLoading && scriptLoading);
   if (someAreNotLoaded) {
     // check stuffs
 
-    if (!loadingState.iframe) {
+    if (!iframeLoading) {
       let me = setInterval(() => {
         if (!iframe.current || !iframe.current.contentWindow) {
-          return loadingState;
+          return;
         }
         clearInterval(me);
-        setLoadingState(loadingState => ({ ...loadingState, iframe: true }));
+        setIframeLoading(true);
       }, 66);
     } else if (!pingInterval) {
       const handleMessage = (e: MessageEvent) => {
         if (!iframe.current || e.source !== iframe.current.contentWindow)
           return;
 
-        setLoadingState(loadingState => ({ ...loadingState, script: true }));
+        setScriptLoading(true);
       };
-
       window.addEventListener("message", handleMessage);
-
-      let intervalId = setInterval(() => {
+      let intervalId = window.setInterval(() => {
         if (!iframe.current || !iframe.current.contentWindow) return;
         iframe.current.contentWindow.postMessage({ type: "register" }, "*");
       }, 66);
 
       setPingInterval(intervalId);
     }
-  } else if (pingInterval) {
+  }
+  if (!someAreNotLoaded && pingInterval) {
     clearInterval(pingInterval);
     setPingInterval(null);
   }
 
-  return [pingInterval, loadingState] as [
+  return [pingInterval, iframeLoading, scriptLoading] as [
     typeof pingInterval,
-    typeof loadingState
+    boolean,
+    boolean
   ];
 };
