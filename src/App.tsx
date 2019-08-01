@@ -1,10 +1,15 @@
 import React, {
   createRef,
   HTMLAttributes,
+  useCallback,
   useEffect,
   useRef,
   useState
 } from "react";
+
+import styles from "./App.module.css";
+import ToolbarItem from "./ToolbarItem";
+import PdfViewer from "./PdfViewer";
 
 const HOST = "http://localhost:1234";
 const DEFAULT_RESOURCE_PATH = HOST + "/public/prompt";
@@ -29,117 +34,54 @@ const App: React.FC = () => {
     });
   }, []);
 
+  const [showSlide, setShowSlide] = useState(true);
+  const [showDoc, setShowDoc] = useState(true);
+  const [focus, setFocus] = useState(0);
+
+  const onFocusSlide = useCallback(() => {
+    console.log("1");
+    setFocus(1);
+  }, []);
+  const onFocusDoc = useCallback(() => {
+    console.log("2");
+    setFocus(2);
+  }, []);
+  const onBlur = useCallback(() => setFocus(0), []);
+
   return (
-    <div className="App" style={{ display: "flex", height: "100vh" }}>
+    <div className={styles.mainContainer}>
       <PdfViewer
         highlights={slideHighlights}
         file={DEFAULT_URL}
-        style={{ flex: 1 }}
+        style={{ flex: 1, display: showSlide ? "initial" : "none" }}
+        onFocus={onFocusSlide}
+        onBlur={onBlur}
       />
       <PdfViewer
         highlights={docHighlights}
         file={DEFAULT_URL_DOC}
-        style={{ flex: 1 }}
+        style={{ flex: 1, display: showDoc ? "initial" : "none" }}
+        onFocus={onFocusDoc}
+        onBlur={onBlur}
       />
+      <div className={styles.toolbar}>
+        <ToolbarItem
+          onClick={() => setShowSlide(b => !b)}
+          selected={showSlide}
+          focused={focus === 1}
+        >
+          Slide
+        </ToolbarItem>
+        <ToolbarItem
+          onClick={() => setShowDoc(b => !b)}
+          selected={showDoc}
+          focused={focus === 2}
+        >
+          Document
+        </ToolbarItem>
+      </div>
     </div>
   );
 };
 
 export default App;
-
-type IFrameAttr = React.DetailedHTMLProps<
-  HTMLAttributes<HTMLIFrameElement>,
-  HTMLIFrameElement
->;
-
-type PdfViewerProps = { file: string; highlights: Highlight[] } & IFrameAttr;
-
-const PdfViewer: React.FC<PdfViewerProps> = ({
-  file,
-  highlights,
-  ...props
-}) => {
-  const iframe = useRef<HTMLIFrameElement>(null);
-
-  useHighlightsEffect(iframe, highlights);
-
-  return (
-    <iframe
-      {...props}
-      ref={iframe}
-      src={"http://localhost:1234/pdf.js/web/viewer.html?file=" + file}
-    />
-  );
-};
-
-/*
-  postMessage가 제대로 전달되는 것을 보장하려면, 로딩이 될 때까지 기다릴 수 있는 수단이 필요하다.
-  1. human sol - 버튼 사용
-  2. scheduler (or timer) 이용
-  */
-const useHighlightsEffect = (
-  iframe: React.RefObject<HTMLIFrameElement>,
-  highlights: Highlight[]
-) => {
-  const scriptLoaded = usePdfViewerLoadingState(iframe)[1];
-
-  useEffect(() => {
-    if (!scriptLoaded) return;
-    if (!iframe.current || !iframe.current.contentWindow) return;
-
-    iframe.current.contentWindow.postMessage(
-      {
-        type: "setHighlights",
-        payload: highlights
-      },
-      "*"
-    );
-  }, [iframe, highlights, scriptLoaded]);
-};
-
-const usePdfViewerLoadingState = (
-  iframe: React.RefObject<HTMLIFrameElement>
-) => {
-  const [pingInterval, setPingInterval] = useState<number | null>(null);
-
-  const [iframeLoading, setIframeLoading] = useState(false);
-  const [scriptLoading, setScriptLoading] = useState(false);
-
-  const someAreNotLoaded = !(iframeLoading && scriptLoading);
-  if (someAreNotLoaded) {
-    // check stuffs
-
-    if (!iframeLoading) {
-      let me = setInterval(() => {
-        if (!iframe.current || !iframe.current.contentWindow) {
-          return;
-        }
-        clearInterval(me);
-        setIframeLoading(true);
-      }, 66);
-    } else if (!pingInterval) {
-      const handleMessage = (e: MessageEvent) => {
-        if (!iframe.current || e.source !== iframe.current.contentWindow)
-          return;
-
-        setScriptLoading(true);
-      };
-      window.addEventListener("message", handleMessage);
-      let intervalId = window.setInterval(() => {
-        if (!iframe.current || !iframe.current.contentWindow) return;
-        iframe.current.contentWindow.postMessage({ type: "register" }, "*");
-      }, 66);
-
-      setPingInterval(intervalId);
-    }
-  }
-  if (!someAreNotLoaded && pingInterval) {
-    clearInterval(pingInterval);
-    setPingInterval(null);
-  }
-
-  return [iframeLoading, scriptLoading] as [
-    boolean,
-    boolean
-  ];
-};

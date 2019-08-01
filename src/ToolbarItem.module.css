@@ -1,0 +1,27 @@
+
+.toolbarItem {
+    padding: 2rem 0.25rem 2rem 0.25rem;
+    border-left: 2px solid transparent;
+    color: white;
+}
+
+.toolbarItem:hover {
+    background-color: #6C6C6C;
+}
+
+.selected, .toolbarItem:active {
+    background-color: #333;
+}
+
+.selected:hover {
+    background-color: #444;
+}
+
+.selected:active {
+    background-color: #2F2F2F;
+}
+
+
+.focused {
+    border-left: 2px solid #2D9CDB;
+}
