@@ -61,7 +61,7 @@ const PdfViewer: React.FC<PdfViewerProps> = ({
 }) => {
   const iframe = useRef<HTMLIFrameElement>(null);
 
-  useUpdateHighlights(iframe, highlights);
+  useHighlightsEffect(iframe, highlights);
 
   return (
     <iframe
@@ -77,11 +77,11 @@ const PdfViewer: React.FC<PdfViewerProps> = ({
   1. human sol - 버튼 사용
   2. scheduler (or timer) 이용
   */
-const useUpdateHighlights = (
+const useHighlightsEffect = (
   iframe: React.RefObject<HTMLIFrameElement>,
   highlights: Highlight[]
 ) => {
-  const scriptLoaded = useWaitPdfViewerLoading(iframe)[2];
+  const scriptLoaded = usePdfViewerLoadingState(iframe)[1];
 
   useEffect(() => {
     if (!scriptLoaded) return;
@@ -97,7 +97,7 @@ const useUpdateHighlights = (
   }, [iframe, highlights, scriptLoaded]);
 };
 
-const useWaitPdfViewerLoading = (
+const usePdfViewerLoadingState = (
   iframe: React.RefObject<HTMLIFrameElement>
 ) => {
   const [pingInterval, setPingInterval] = useState<number | null>(null);
@@ -138,8 +138,7 @@ const useWaitPdfViewerLoading = (
     setPingInterval(null);
   }
 
-  return [pingInterval, iframeLoading, scriptLoading] as [
-    typeof pingInterval,
+  return [iframeLoading, scriptLoading] as [
     boolean,
     boolean
   ];
