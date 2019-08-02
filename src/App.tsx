@@ -9,7 +9,7 @@ import React, {
 
 import styles from "./App.module.css";
 import ToolbarItem from "./ToolbarItem";
-import PdfViewer from "./PdfViewer";
+import PdfViewer, { PdfViewerHandle } from "./PdfViewer";
 
 const HOST = "http://localhost:1234";
 const DEFAULT_RESOURCE_PATH = HOST + "/public/prompt";
@@ -48,9 +48,31 @@ const App: React.FC = () => {
   }, []);
   const onBlur = useCallback(() => setFocus(0), []);
 
+  const slideViewerRef = useRef<PdfViewerHandle>(null);
+  const docViewerRef = useRef<PdfViewerHandle>(null);
+
+  const onClickSlideToggle = useCallback(() => {
+    setShowSlide(b => {
+      if (!b) {
+        if (slideViewerRef.current) {
+          console.log("focusing!", slideViewerRef);
+          slideViewerRef.current.focus();
+        }
+      }
+      return !b;
+    });
+  }, []);
+  const onClickDocumentToggle = useCallback(() => {
+    setShowDoc(b => {
+      if (!b && docViewerRef.current) docViewerRef.current.focus();
+      return !b;
+    });
+  }, []);
+
   return (
     <div className={styles.mainContainer}>
       <PdfViewer
+        ref={slideViewerRef}
         highlights={slideHighlights}
         file={DEFAULT_URL}
         style={{ flex: 1, display: showSlide ? "initial" : "none" }}
@@ -58,6 +80,7 @@ const App: React.FC = () => {
         onBlur={onBlur}
       />
       <PdfViewer
+        ref={docViewerRef}
         highlights={docHighlights}
         file={DEFAULT_URL_DOC}
         style={{ flex: 1, display: showDoc ? "initial" : "none" }}
@@ -66,14 +89,14 @@ const App: React.FC = () => {
       />
       <div className={styles.toolbar}>
         <ToolbarItem
-          onClick={() => setShowSlide(b => !b)}
+          onClick={onClickSlideToggle}
           selected={showSlide}
           focused={focus === 1}
         >
           Slide
         </ToolbarItem>
         <ToolbarItem
-          onClick={() => setShowDoc(b => !b)}
+          onClick={onClickDocumentToggle}
           selected={showDoc}
           focused={focus === 2}
         >

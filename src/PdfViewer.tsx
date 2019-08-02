@@ -1,6 +1,7 @@
 import React, {
   HTMLAttributes,
   useEffect,
+  useImperativeHandle,
   useMemo,
   useRef,
   useState
@@ -20,17 +21,25 @@ interface Props {
 
 type OnFocus = () => void;
 type OnBlur = () => void;
+export interface PdfViewerHandle {
+  focus: () => void;
+}
 
-const PdfViewer: React.FC<Props & IFrameAttr> = ({
-  file,
-  highlights,
-  onFocus,
-  onBlur,
-  ...props
-}) => {
+const PdfViewer: React.RefForwardingComponent<
+  PdfViewerHandle,
+  Props & IFrameAttr
+> = ({ file, highlights, onFocus, onBlur, ...props }, ref) => {
   const iframe = useRef<HTMLIFrameElement>(null);
-
   const scriptLoaded = usePdfViewerLoadingState(iframe)[1];
+
+  useImperativeHandle(ref, () => ({
+    focus: () => {
+      iframe.current &&
+      iframe.current.contentWindow &&
+      scriptLoaded &&
+      iframe.current.contentWindow.postMessage({ type: "focus" }, "*");
+    }
+  }));
 
   useEffect(() => {
     if (!scriptLoaded) return;
@@ -52,13 +61,11 @@ const PdfViewer: React.FC<Props & IFrameAttr> = ({
   );
 };
 
-/*
-  postMessage가 제대로 전달되는 것을 보장하려면, 로딩이 될 때까지 기다릴 수 있는 수단이 필요하다.
-  1. human sol - 버튼 사용
-  2. scheduler (or timer) 이용
-  */
-
-const doMessageHandlerEffect = (iframe: React.RefObject<HTMLIFrameElement>, onFocus: OnFocus, onBlur: OnBlur) => {
+const doMessageHandlerEffect = (
+  iframe: React.RefObject<HTMLIFrameElement>,
+  onFocus: OnFocus,
+  onBlur: OnBlur
+) => {
   const handler = (e: MessageEvent) => {
     // we should handle messages about this iframe
     if (!iframe.current || e.source !== iframe.current.contentWindow) {
@@ -95,6 +102,10 @@ const doHighlightsEffect = (
     "*"
   );
 };
+
+// TODO:: 코드 단순화
+// Task 분할이 필요 이상으로 복잡하다.
+// 사용자는 ScriptLoading만 알면 되므로, 훨씬 단순하게 만들 수 있음
 
 const usePdfViewerLoadingState = (
   iframe: React.RefObject<HTMLIFrameElement>
@@ -140,4 +151,4 @@ const usePdfViewerLoadingState = (
   return [iframeLoading, scriptLoading] as [boolean, boolean];
 };
 
-export default PdfViewer;
+export default React.forwardRef(PdfViewer);
