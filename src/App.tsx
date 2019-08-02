@@ -50,24 +50,23 @@ const App: React.FC = () => {
 
   const slideViewerRef = useRef<PdfViewerHandle>(null);
   const docViewerRef = useRef<PdfViewerHandle>(null);
+  useEffect(() => {
+    // ensure focusing changes
+    if (focus === 1 && slideViewerRef.current) slideViewerRef.current.focus();
+  }, [focus]);
+  useEffect(() => {
+    // ensure focusing changes
+    if (focus === 2 && docViewerRef.current) docViewerRef.current.focus();
+  }, [focus]);
 
   const onClickSlideToggle = useCallback(() => {
-    setShowSlide(b => {
-      if (!b) {
-        if (slideViewerRef.current) {
-          console.log("focusing!", slideViewerRef);
-          slideViewerRef.current.focus();
-        }
-      }
-      return !b;
-    });
-  }, []);
+    setShowSlide(b => !b);
+    if (!showSlide) setFocus(1);
+  }, [showSlide]);
   const onClickDocumentToggle = useCallback(() => {
-    setShowDoc(b => {
-      if (!b && docViewerRef.current) docViewerRef.current.focus();
-      return !b;
-    });
-  }, []);
+    setShowDoc(b => !b);
+    if (!showDoc) setFocus(2);
+  }, [showDoc]);
 
   return (
     <div className={styles.mainContainer}>
