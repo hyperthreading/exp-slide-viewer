@@ -3,6 +3,7 @@
     padding: 2rem 0.25rem 2rem 0.25rem;
     border-left: 2px solid transparent;
     color: white;
+    user-select: none;
 }
 
 .toolbarItem:hover {

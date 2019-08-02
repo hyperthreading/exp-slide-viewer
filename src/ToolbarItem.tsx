@@ -11,7 +11,7 @@ interface Props {
 
 export default (({ children, selected, focused, onClick }) => {
   return (
-    <span
+    <div
       className={cn(
         styles.toolbarItem,
         focused ? styles.focused : null,
@@ -20,6 +20,6 @@ export default (({ children, selected, focused, onClick }) => {
       onClick={onClick}
     >
       {children}
-    </span>
+    </div>
   );
 }) as React.FC<Props>;
