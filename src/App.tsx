@@ -66,19 +66,33 @@ const App: React.FC = () => {
     if (!showDoc) setFocus(2);
   }, [showDoc]);
 
-  const onClickHighlightSlide = useCallback<OnClickHighlight>(h => {
-    const map = mappings.find(
-      ([slideHighlightId, _]) => slideHighlightId === h.id
-    );
-    map && docViewerRef.current && docViewerRef.current.scrollToHighlight(map[1]);
-  }, [mappings]);
+  const onClickHighlightSlide = useCallback<OnClickHighlight>(
+    h => {
+      const map = mappings.find(
+        ([slideHighlightId, _]) => slideHighlightId === h.id
+      );
 
-  const onClickHighlightDoc = useCallback<OnClickHighlight>(h => {
-    const map = mappings.find(
-      ([_, docHighlightId]) => docHighlightId === h.id
-    );
-    map && slideViewerRef.current && slideViewerRef.current.scrollToHighlight(map[0]);
-  }, [mappings]);
+      if (!(map && docViewerRef.current)) return;
+
+      docViewerRef.current.scrollToHighlight(map[1]);
+      setShowDoc(true);
+    },
+    [mappings]
+  );
+
+  const onClickHighlightDoc = useCallback<OnClickHighlight>(
+    h => {
+      const map = mappings.find(
+        ([_, docHighlightId]) => docHighlightId === h.id
+      );
+
+      if (!(map && slideViewerRef.current)) return;
+
+      slideViewerRef.current.scrollToHighlight(map[0]);
+      setShowSlide(true);
+    },
+    [mappings]
+  );
 
   return (
     <div className={styles.mainContainer}>

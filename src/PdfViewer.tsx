@@ -53,12 +53,12 @@ const PdfViewer: React.RefForwardingComponent<
     },
     scrollToHighlight: (id: string) => {
       iframe.current &&
-      iframe.current.contentWindow &&
-      scriptLoaded &&
-      iframe.current.contentWindow.postMessage(
-        { type: "scrollToHighlight", payload: id },
-        "*"
-      );
+        iframe.current.contentWindow &&
+        scriptLoaded &&
+        iframe.current.contentWindow.postMessage(
+          { type: "scrollToHighlight", payload: id },
+          "*"
+        );
     }
   }));
 
