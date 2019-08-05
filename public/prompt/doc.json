@@ -1,6 +1,45 @@
 [
     {
         "content": {
+            "text": " Figure 1 shows an example video learning interfaceequipped with in-video prompting."
+        },
+        "position": {
+            "boundingRect": {
+                "x1": 89.88330078125,
+                "y1": 696.0499877929688,
+                "x2": 494.99993896484375,
+                "y2": 731.316650390625,
+                "width": 1019.9999999999999,
+                "height": 1319.9999999999998
+            },
+            "rects": [
+                {
+                    "x1": 140.199951171875,
+                    "y1": 696.0499877929688,
+                    "x2": 494.99993896484375,
+                    "y2": 713.0499877929688,
+                    "width": 1019.9999999999999,
+                    "height": 1319.9999999999998
+                },
+                {
+                    "x1": 89.88330078125,
+                    "y1": 714.316650390625,
+                    "x2": 325.3332977294922,
+                    "y2": 731.316650390625,
+                    "width": 1019.9999999999999,
+                    "height": 1319.9999999999998
+                }
+            ],
+            "pageNumber": 2
+        },
+        "comment": {
+            "text": " Figure 1 shows an example video learning interface\nequipped with in-video prompting.",
+            "emoji": ""
+        },
+        "id": "26239227265194365"
+    },
+    {
+        "content": {
             "text": "Describe something unsatisfying about the lecture so far."
         },
         "position": {
@@ -725,45 +764,6 @@
             "emoji": ""
         },
         "id": "7872663155534115"
-    },
-    {
-        "content": {
-            "text": "Figure 1:An example of in-video prompting supported by avideo learning interface. "
-        },
-        "position": {
-            "boundingRect": {
-                "x1": 419.4000244140625,
-                "y1": 426.28334045410156,
-                "x2": 737.8999328613281,
-                "y2": 454.933349609375,
-                "width": 799.9999999999999,
-                "height": 1035.2941176470586
-            },
-            "rects": [
-                {
-                    "x1": 419.7333984375,
-                    "y1": 426.28334045410156,
-                    "x2": 737.8999328613281,
-                    "y2": 440.45001220703125,
-                    "width": 799.9999999999999,
-                    "height": 1035.2941176470586
-                },
-                {
-                    "x1": 419.4000244140625,
-                    "y1": 440.7666778564453,
-                    "x2": 548.9333648681641,
-                    "y2": 454.933349609375,
-                    "width": 799.9999999999999,
-                    "height": 1035.2941176470586
-                }
-            ],
-            "pageNumber": 1
-        },
-        "comment": {
-            "text": "",
-            "emoji": ""
-        },
-        "id": "7482527920006958"
     },
     {
         "content": {
