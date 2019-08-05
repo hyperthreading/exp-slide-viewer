@@ -8,9 +8,12 @@ interface LTWH {
 }
 
 interface Highlight {
+  id: string;
   position: {
     boundingRect: LTWH;
     rects: LTWH[];
   };
   comment?: string;
 }
+
+type Mapping = [string, string];

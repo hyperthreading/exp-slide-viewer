@@ -12,32 +12,53 @@ type IFrameAttr = React.DetailedHTMLProps<
   HTMLIFrameElement
 >;
 
+type ArrowOpt = "left" | "right";
+
 interface Props {
   file: string;
   highlights: Highlight[];
   onFocus: OnFocus;
   onBlur: OnBlur;
+  onClickHighlight: OnClickHighlight;
+  arrow: ArrowOpt;
 }
 
-type OnFocus = () => void;
-type OnBlur = () => void;
+type BasicHandler = () => void;
+type OnFocus = BasicHandler;
+type OnBlur = BasicHandler;
+
+export type OnClickHighlight = (h: Highlight) => void;
+
 export interface PdfViewerHandle {
   focus: () => void;
+  scrollToHighlight: (id: string) => void;
 }
 
 const PdfViewer: React.RefForwardingComponent<
   PdfViewerHandle,
   Props & IFrameAttr
-> = ({ file, highlights, onFocus, onBlur, ...props }, ref) => {
+> = (
+  { file, highlights, arrow, onFocus, onBlur, onClickHighlight, ...props },
+  ref
+) => {
   const iframe = useRef<HTMLIFrameElement>(null);
   const scriptLoaded = usePdfViewerLoadingState(iframe)[1];
 
   useImperativeHandle(ref, () => ({
     focus: () => {
       iframe.current &&
+        iframe.current.contentWindow &&
+        scriptLoaded &&
+        iframe.current.contentWindow.postMessage({ type: "focus" }, "*");
+    },
+    scrollToHighlight: (id: string) => {
+      iframe.current &&
       iframe.current.contentWindow &&
       scriptLoaded &&
-      iframe.current.contentWindow.postMessage({ type: "focus" }, "*");
+      iframe.current.contentWindow.postMessage(
+        { type: "scrollToHighlight", payload: id },
+        "*"
+      );
     }
   }));
 
@@ -47,9 +68,13 @@ const PdfViewer: React.RefForwardingComponent<
   }, [highlights, scriptLoaded]);
 
   useEffect(() => {
-    if (!iframe.current) return;
-    return doMessageHandlerEffect(iframe, onFocus, onBlur);
-  }, [onFocus, onBlur]);
+    if (!scriptLoaded) return;
+    doHighlightOptionsEffect(iframe, arrow);
+  }, [arrow, scriptLoaded]);
+
+  useEffect(() => {
+    return doMessageHandlerEffect(iframe, onFocus, onBlur, onClickHighlight);
+  }, [onFocus, onBlur, onClickHighlight]);
 
   return (
     <iframe
@@ -64,7 +89,8 @@ const PdfViewer: React.RefForwardingComponent<
 const doMessageHandlerEffect = (
   iframe: React.RefObject<HTMLIFrameElement>,
   onFocus: OnFocus,
-  onBlur: OnBlur
+  onBlur: OnBlur,
+  onClickHighlight: OnClickHighlight
 ) => {
   const handler = (e: MessageEvent) => {
     // we should handle messages about this iframe
@@ -79,6 +105,9 @@ const doMessageHandlerEffect = (
         break;
       case "blur":
         onBlur();
+        break;
+      case "clickHighlight":
+        onClickHighlight(action.payload);
         break;
       default:
     }
@@ -98,6 +127,23 @@ const doHighlightsEffect = (
     {
       type: "setHighlights",
       payload: highlights
+    },
+    "*"
+  );
+};
+
+const doHighlightOptionsEffect = (
+  iframe: React.RefObject<HTMLIFrameElement>,
+  arrow: ArrowOpt
+) => {
+  if (!iframe.current || !iframe.current.contentWindow) return;
+
+  iframe.current.contentWindow.postMessage(
+    {
+      type: "setHighlightOptions",
+      payload: {
+        arrow
+      }
     },
     "*"
   );

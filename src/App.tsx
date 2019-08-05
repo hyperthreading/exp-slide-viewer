@@ -9,7 +9,7 @@ import React, {
 
 import styles from "./App.module.css";
 import ToolbarItem from "./ToolbarItem";
-import PdfViewer, { PdfViewerHandle } from "./PdfViewer";
+import PdfViewer, { OnClickHighlight, PdfViewerHandle } from "./PdfViewer";
 
 const HOST = "http://localhost:1234";
 const DEFAULT_RESOURCE_PATH = HOST + "/public/prompt";
@@ -18,9 +18,9 @@ const DEFAULT_URL = DEFAULT_RESOURCE_PATH + "/slide.pdf";
 const DEFAULT_URL_DOC = DEFAULT_RESOURCE_PATH + "/doc.pdf";
 
 const App: React.FC = () => {
-  const [slideHighlights, setSlideHighlights] = useState([]);
-  const [docHighlights, setDocHighlights] = useState([]);
-  const [mappings, setMappings] = useState([]);
+  const [slideHighlights, setSlideHighlights] = useState<Highlight[]>([]);
+  const [docHighlights, setDocHighlights] = useState<Highlight[]>([]);
+  const [mappings, setMappings] = useState<Mapping[]>([]);
 
   useEffect(() => {
     Promise.all([
@@ -39,11 +39,9 @@ const App: React.FC = () => {
   const [focus, setFocus] = useState(0);
 
   const onFocusSlide = useCallback(() => {
-    console.log("1");
     setFocus(1);
   }, []);
   const onFocusDoc = useCallback(() => {
-    console.log("2");
     setFocus(2);
   }, []);
   const onBlur = useCallback(() => setFocus(0), []);
@@ -68,23 +66,41 @@ const App: React.FC = () => {
     if (!showDoc) setFocus(2);
   }, [showDoc]);
 
+  const onClickHighlightSlide = useCallback<OnClickHighlight>(h => {
+    const map = mappings.find(
+      ([slideHighlightId, _]) => slideHighlightId === h.id
+    );
+    map && docViewerRef.current && docViewerRef.current.scrollToHighlight(map[1]);
+  }, [mappings]);
+
+  const onClickHighlightDoc = useCallback<OnClickHighlight>(h => {
+    const map = mappings.find(
+      ([_, docHighlightId]) => docHighlightId === h.id
+    );
+    map && slideViewerRef.current && slideViewerRef.current.scrollToHighlight(map[0]);
+  }, [mappings]);
+
   return (
     <div className={styles.mainContainer}>
       <PdfViewer
         ref={slideViewerRef}
         highlights={slideHighlights}
+        arrow="right"
         file={DEFAULT_URL}
         style={{ flex: 1, display: showSlide ? "initial" : "none" }}
         onFocus={onFocusSlide}
         onBlur={onBlur}
+        onClickHighlight={onClickHighlightSlide}
       />
       <PdfViewer
         ref={docViewerRef}
         highlights={docHighlights}
+        arrow="left"
         file={DEFAULT_URL_DOC}
         style={{ flex: 1, display: showDoc ? "initial" : "none" }}
         onFocus={onFocusDoc}
         onBlur={onBlur}
+        onClickHighlight={onClickHighlightDoc}
       />
       <div className={styles.toolbar}>
         <ToolbarItem
