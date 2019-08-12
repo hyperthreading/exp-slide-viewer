@@ -41,6 +41,6 @@ It will run a web server on port 1234 and a webpack dev server (typically on por
 
 
 
-## Credit
+## Credits
 
-I referred the code of react-pdf-highlighter by @agentcooper. Thanks for the great example!
+I referred to the code of react-pdf-highlighter by @agentcooper. Thanks for the great example!
