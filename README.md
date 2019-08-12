@@ -10,7 +10,7 @@ Built using PDF.js, React v16.8, TypeScript 3.5
 
 Tested on `node v10.15.0`
 
-You will need **two package managers**, `yarn` and `npm`, since my own code uses yarn and PDF.js uses npm.
+You will need **two package managers**, both `yarn` and `npm`, since my own code uses yarn and PDF.js uses npm.
 
 
 
@@ -20,18 +20,15 @@ You will need **two package managers**, `yarn` and `npm`, since my own code uses
 
 Running the project requires cloning all the submodules (which include the highlight layer addon and modified PDF.js)
 
-`git clone [this-git-repo-url] --recursive`
+`git clone --recurse-submodules [this-git-repo-url]`
 
 
 
 2. Install all the dependencies in the submodules
 
-   1. In the project root, run `yarn install`
+   1. run `yarn install`
 
-   2. In the highlighter directory, run `yarn install`
-
-   3. In the PDF.js directory, run `npm install`
-
+   2. run `yarn update`
       
 
 3. `yarn start` on the project root :).
